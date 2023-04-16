@@ -1,7 +1,7 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
-    // MARK: - Аутлеты и Действия
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+    // MARK: - Actions
     
     @IBOutlet private var counterLabel: UILabel!
     
@@ -27,16 +27,16 @@ final class MovieQuizViewController: UIViewController {
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     
-    // MARK: - Переменные
+    // MARK: - Variables
     
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     
     private let questionsAmount: Int = 10
-    private let questionFactory: QuestionFactory = QuestionFactory()
+    private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     
-    // MARK: - логика
+    // MARK: - Private functions
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         
@@ -50,14 +50,10 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func show(quiz step: QuizStepViewModel) {
-        
-        if let firstQuestion = self.questionFactory.requestNextQuestion() {
-            self.currentQuestion = firstQuestion
-            let viewModel = self.convert(model: firstQuestion)
-            
-            self.show(quiz: viewModel)
-        }
-    }
+      imageView.image = step.image
+      textLabel.text = step.question
+      counterLabel.text = step.questionNumber
+    } 
     
     private func showAnswerResult(isCorrect: Bool) {
         
@@ -70,7 +66,7 @@ final class MovieQuizViewController: UIViewController {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-            self.showNextQuestionOrResults()
+            showNextQuestionOrResults()
         }
     }
     
@@ -87,12 +83,7 @@ final class MovieQuizViewController: UIViewController {
             imageView.layer.borderColor = UIColor.clear.cgColor
             currentQuestionIndex += 1
             
-            if let nextQuestion = questionFactory.requestNextQuestion() {
-                currentQuestion = nextQuestion
-                let viewModel = convert(model: nextQuestion)
-                
-                show(quiz: viewModel)
-            }
+            self.questionFactory?.requestNextQuestion()
         }
     }
     
@@ -105,15 +96,10 @@ final class MovieQuizViewController: UIViewController {
         let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
             guard let self = self else { return }
             
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
+            currentQuestionIndex = 0
+            correctAnswers = 0
             
-            if let nextQuestion = questionFactory.requestNextQuestion() {
-                currentQuestion = nextQuestion
-                let viewModel = convert(model: nextQuestion)
-                
-                show(quiz: viewModel)
-            }
+            questionFactory?.requestNextQuestion()
         }
         
         alert.addAction(action)
@@ -121,16 +107,29 @@ final class MovieQuizViewController: UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
-    // MARK: - Жизненный Цикл
+    
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let firstQuestion = questionFactory.requestNextQuestion() {
-            currentQuestion = firstQuestion
-            let viewModel = convert(model: firstQuestion)
-            show(quiz: viewModel)
-        } 
+        questionFactory = QuestionFactory(delegate: self)
         
+        questionFactory?.requestNextQuestion()
+        
+    }
+    
+    // MARK: - QuestionFactoryDelegate
+
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+        
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: viewModel)
+        }
     }
 }
