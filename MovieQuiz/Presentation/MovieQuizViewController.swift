@@ -35,6 +35,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
+    private var statisticService: StatisticService?
     
     // MARK: - Private functions
     
@@ -73,7 +74,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionsAmount - 1 {
             imageView.layer.borderColor = UIColor.clear.cgColor
-            let text = "Ваш результат: \(correctAnswers)/10"
+            guard let statisticService = statisticService else { return }
+            statisticService.store(correct: correctAnswers, total: 10)
+            let text = "Ваш результат: \(correctAnswers)/10\n" +
+            "Количество сыгранных квизов: \(statisticService.gamesCount)\n" +
+            "Рекорд: \(statisticService.bestGame.correct)/10 \(statisticService.bestGame.date.dateTimeString)\n" +
+            "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy * 100))%\n"
             let viewModel = QuizResultsViewModel(
                 title: "Этот раунд окончен!",
                 text: text,
@@ -111,6 +117,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionFactory = QuestionFactory(delegate: self)
         
         questionFactory?.requestNextQuestion()
+        
+        statisticService = StatisticServiceImplementation ()
         
     }
     
