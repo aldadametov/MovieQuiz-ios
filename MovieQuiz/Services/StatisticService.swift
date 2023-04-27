@@ -30,23 +30,34 @@ struct GameRecord: Codable {
 
 final class StatisticServiceImplementation: StatisticService {
     
-    private var _totalAccuracy: Double = 0
+    var correct: Int {
+        return userDefaults.integer(forKey: Keys.correct.rawValue)
+    }
+
+    var total: Int {
+        return userDefaults.integer(forKey: Keys.total.rawValue)
+    }
+   
     var totalAccuracy: Double {
-        get {
-            return _totalAccuracy
-            }
-        set {
-            _totalAccuracy = newValue
-        }
+        guard total > 0 else { return 0 }
+        return Double(correct) / Double(total)
     }
     
-    private var _gamesCount: Int = 0
     var gamesCount: Int {
         get {
-            return _gamesCount
+            guard let data = userDefaults.data(forKey: Keys.gamesCount.rawValue),
+            let record = try? JSONDecoder().decode(Int.self, from: data) else {
+                return 0
+            }
+            return record
         }
         set {
-            _gamesCount = newValue
+            guard let data = try? JSONEncoder().encode(newValue) else {
+            print("Невозможно сохранить результат")
+            return
+            }
+            
+            userDefaults.set(data, forKey: Keys.gamesCount.rawValue)
         }
     }
     
@@ -77,17 +88,15 @@ final class StatisticServiceImplementation: StatisticService {
     }
     
     func store(correct count: Int, total amount: Int) {
-        let accuracy = Double (count) / Double (amount)
-        
         gamesCount += 1
-        
-        let newTotalAccuracy = (_totalAccuracy * Double(gamesCount - 1) + accuracy) / Double(gamesCount)
-        totalAccuracy = newTotalAccuracy
-        
+        let newCorrectCount = userDefaults.integer(forKey: Keys.correct.rawValue) + count
+        let newTotalAmount = userDefaults.integer(forKey: Keys.total.rawValue) + amount
         let newGameRecord = GameRecord(correct: count, total: amount, date: Date())
-                if GameRecord.newBestRecord(lhs: newGameRecord, rhs: bestGame) {
-                    bestGame = newGameRecord
-                }
+        if GameRecord.newBestRecord(lhs: newGameRecord, rhs: bestGame) {
+            bestGame = newGameRecord
+        }
+        userDefaults.set(newCorrectCount, forKey: Keys.correct.rawValue)
+        userDefaults.set(newTotalAmount, forKey: Keys.total.rawValue)
     }
 
 }

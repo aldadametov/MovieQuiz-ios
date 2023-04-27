@@ -76,10 +76,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             imageView.layer.borderColor = UIColor.clear.cgColor
             guard let statisticService = statisticService else { return }
             statisticService.store(correct: correctAnswers, total: 10)
-            let text = "Ваш результат: \(correctAnswers)/10\n" +
-            "Количество сыгранных квизов: \(statisticService.gamesCount)\n" +
-            "Рекорд: \(statisticService.bestGame.correct)/10 \(statisticService.bestGame.date.dateTimeString)\n" +
-            "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy * 100))%\n"
+            let text = """
+            Ваш результат: \(correctAnswers)/10
+            Количество сыгранных квизов: \(statisticService.gamesCount)
+            Рекорд: \(statisticService.bestGame.correct)/10 \(statisticService.bestGame.date.dateTimeString)
+            Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy * 100))%
+            """
             let viewModel = QuizResultsViewModel(
                 title: "Этот раунд окончен!",
                 text: text,

@@ -4,11 +4,9 @@
 //
 //  Created by Алишер Дадаметов on 15.04.2023.
 //
-
-import Foundation
 import UIKit
 
-class AlertPresenter {
+final class AlertPresenter {
     
     static func show(from viewController: UIViewController, with model: AlertModel) {
         let alert = UIAlertController(title: model.title, message: model.message, preferredStyle: .alert)
