@@ -5,16 +5,20 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var activityIndicator:UIActivityIndicatorView!
+    @IBOutlet private var noButton: UIButton!
+    @IBOutlet private var yesButton: UIButton!
     private var alertPresenter = AlertPresenter()
     private var presenter: MovieQuizPresenter!
     
     // MARK: - Actions
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
         presenter.yesButtonClicked()
+        disableButtons()
     }
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
         presenter.noButtonClicked()
+        disableButtons()
     }
     
     // MARK: - Private functions
@@ -24,6 +28,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
         imageView.layer.borderColor = UIColor.clear.cgColor
+        enableButtons()
     }
     
     func highlightImageBorder(isCorrectAnswer: Bool) {
@@ -68,10 +73,23 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         alertPresenter.show(from: self, with: model)
     }
     
+    func enableButtons() {
+        yesButton.isEnabled = true
+        noButton.isEnabled = true
+    }
+    
+    func disableButtons() {
+        yesButton.isEnabled = false
+        noButton.isEnabled = false
+    }
+    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         presenter = MovieQuizPresenter(viewController: self)
+    }
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+          return .lightContent
     }
 }
