@@ -33,11 +33,11 @@ final class StatisticServiceImplementation: StatisticService {
     var correct: Int {
         return userDefaults.integer(forKey: Keys.correct.rawValue)
     }
-
+    
     var total: Int {
         return userDefaults.integer(forKey: Keys.total.rawValue)
     }
-   
+    
     var totalAccuracy: Double {
         guard total > 0 else { return 0 }
         return Double(correct) / Double(total)
@@ -46,15 +46,15 @@ final class StatisticServiceImplementation: StatisticService {
     var gamesCount: Int {
         get {
             guard let data = userDefaults.data(forKey: Keys.gamesCount.rawValue),
-            let record = try? JSONDecoder().decode(Int.self, from: data) else {
+                  let record = try? JSONDecoder().decode(Int.self, from: data) else {
                 return 0
             }
             return record
         }
         set {
             guard let data = try? JSONEncoder().encode(newValue) else {
-            print("Невозможно сохранить результат")
-            return
+                print("Невозможно сохранить результат")
+                return
             }
             
             userDefaults.set(data, forKey: Keys.gamesCount.rawValue)
@@ -64,7 +64,7 @@ final class StatisticServiceImplementation: StatisticService {
     var bestGame: GameRecord {
         get {
             guard let data = userDefaults.data(forKey: Keys.bestGame.rawValue),
-            let record = try? JSONDecoder().decode(GameRecord.self, from: data) else {
+                  let record = try? JSONDecoder().decode(GameRecord.self, from: data) else {
                 return .init(correct: 0, total: 0, date: Date())
             }
             
@@ -98,5 +98,5 @@ final class StatisticServiceImplementation: StatisticService {
         userDefaults.set(newCorrectCount, forKey: Keys.correct.rawValue)
         userDefaults.set(newTotalAmount, forKey: Keys.total.rawValue)
     }
-
+    
 }
