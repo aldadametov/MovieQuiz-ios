@@ -11,7 +11,7 @@ import XCTest
 final class MovieQuizUITests: XCTestCase {
     
     var app: XCUIApplication!
-
+    
     override func setUpWithError() throws {
         
         try super.setUpWithError()
@@ -22,7 +22,7 @@ final class MovieQuizUITests: XCTestCase {
         
         continueAfterFailure = false
     }
-
+    
     override func tearDownWithError() throws {
         
         try super.tearDownWithError()
@@ -31,7 +31,7 @@ final class MovieQuizUITests: XCTestCase {
         app = nil
         
     }
-
+    
     func testYesButton() {
         sleep(3)
         
@@ -72,7 +72,7 @@ final class MovieQuizUITests: XCTestCase {
             app.buttons["No"].tap()
             sleep(2)
         }
-
+        
         let alert = app.alerts["Game Results"]
         
         XCTAssertTrue(alert.exists)
@@ -94,18 +94,7 @@ final class MovieQuizUITests: XCTestCase {
         
         let indexLabel = app.staticTexts["Index"]
         
-        
         XCTAssertFalse(alert.exists)
         XCTAssertTrue(indexLabel.label == "1/10")
-        
-        
     }
-    
-        
-    
-    func testExample() throws {
-        let app = XCUIApplication()
-        app.launch()
-    }
-    
 }
